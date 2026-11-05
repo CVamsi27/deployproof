@@ -1,115 +1,69 @@
 # Deployproof
 
-Catch missing files, broken workspace links and dependencies outside the exact Node folder being deployed.
+**The build passed. Does the deployment folder contain what the app needs?**
+
+Deployproof checks an already-built Node folder for missing files, broken workspace links and dependencies that escape back into the source repository. It names the missing path and its import chain without running the application.
 
 [![CI](https://github.com/CVamsi27/deployproof/actions/workflows/ci.yml/badge.svg)](https://github.com/CVamsi27/deployproof/actions/workflows/ci.yml)
 
-Public alpha for synthetic/local testing. Use Node 24.22.1 (`.node-version`). Installation from source and local tarballs is supported; the scoped package names are not published to npm. [GitHub releases](https://github.com/CVamsi27/deployproof/releases) provide verified alpha tarballs when a release is available.
+## Try it without cloning
 
-## Clone and run
-
-```sh
-git clone https://github.com/CVamsi27/deployproof.git
-cd deployproof
-npm ci --ignore-scripts
-npm run check
-node examples/fixtures.js /tmp/deployproof-first-example
-node src/cli.js check /tmp/deployproof-first-example/workspace-link-fixed --entry server.js --json
-```
-
-The example target must be new. Container-backed commands below require OrbStack and explicit local image preparation. They use the Docker-compatible CLI connected to OrbStack; Docker Desktop is not required. Missing engine, browser, image, collector or cleanup evidence remains a failure.
-
-To use a tarball in another project, download this project's `.tgz` from its release and run `npm install --save-dev /absolute/path/to/the-downloaded.tgz`. The installed tarball exposes the `deployproof` binary and the same public API.
-
-See [contributing](CONTRIBUTING.md), [security reporting](SECURITY.md), [changes](CHANGELOG.md) and [verification](docs/verification.md). Platform and adoption claims remain limited to recorded observations. The JavaScript API is ESM. This alpha supplies no TypeScript declarations for this package; CommonJS compatibility is not promised.
-
-Check whether a built Node application folder still depends on its original repository. Early prototype: synthetic failure detection is implemented; developer adoption and setup-time advantage remain unvalidated.
-
-Deployproof reads the artifact as data. It does not import or run the inspected application during structural checks. It combines [Node File Trace](https://github.com/vercel/nft) with contained filesystem resolution, symlink checks, and a small supplemental literal-asset analysis.
-
-## Try the synthetic broken and fixed examples
-
-Requires Node 22+ and npm. From a checkout:
+Requires Node 22+ and npm. This command installs the pinned GitHub alpha into npm's cache and runs a synthetic example. No account or container engine is needed.
 
 ```sh
-npm ci --ignore-scripts
-node examples/fixtures.js /tmp/deployproof-fixtures
-node src/cli.js check /tmp/deployproof-fixtures/workspace-link-broken --entry server.js
-node src/cli.js check /tmp/deployproof-fixtures/workspace-link-fixed --entry server.js --json
-npm run check
-npm run pack:check
-npm run measure
+npm exec --yes --package=https://github.com/CVamsi27/deployproof/releases/download/v0.1.0-alpha.1/developer-pain-lab-deployproof-0.1.0-alpha.1.tgz -- deployproof demo
 ```
 
-The generator refuses an existing target. Its six folders demonstrate three failure patterns, each with a healthy equivalent: a workspace symlink pointing back to omitted source, a package whose declared built module is absent, and a literal runtime asset omitted from the artifact. They are synthetic reproductions of failure classes; they are not copies of upstream incident applications.
+Actual output from the bundled example:
 
-For a locally packed install, run `npm pack`, install the resulting `.tgz` into another project, then use its `deployproof` binary. There is no hosted account requirement. `npm run pack:check` in this project verifies a clean installed consumer; no lab checkout is required.
+```text
+Synthetic demo: an entry reads message.txt, but the deployment folder omits it.
+Broken artifact: failed (check exit 1)
+missing_asset: message.txt (from server.js)
+  Literal runtime asset is absent from the deployment folder.
+  chain: server.js -> message.txt
+Fixed artifact: passed (check exit 0)
+Cleanup: completed
+Demo: passed
+Structural checks only; the synthetic application was not executed.
+```
+
+The command creates a private temporary folder, checks the broken artifact, adds the missing file, checks again and removes its own folder. `demo --json` exposes both real reports. Demo exit 0 means those controls and cleanup succeeded; an incomplete demo exits 2. It is an example, not a scan of your project.
 
 ## Check your deployment folder
 
-Build or deploy your normal application first, then select the exact folder that you intend to copy:
+Build the application with your existing tools, then install the pinned alpha in your project:
 
 ```sh
-deployproof check ./out --entry dist/server.js --json
+npm install --save-dev --ignore-scripts https://github.com/CVamsi27/deployproof/releases/download/v0.1.0-alpha.1/developer-pain-lab-deployproof-0.1.0-alpha.1.tgz
+npx --no-install deployproof check ./out --entry dist/server.js
 ```
 
-For pnpm, `./out` can be the result of your existing `pnpm deploy` command. Deployproof neither builds the app nor installs its dependencies. The root and entry are explicit, so resolution cannot accidentally use a parent `node_modules`. Every external symlink is a finding even if its target currently exists on the developer's machine. The target is not read.
+Select the **exact folder you intend to ship**. For pnpm this can be your existing `pnpm deploy` output. Deployproof does not build or install the application. Resolution is confined to that folder: parent `node_modules` cannot rescue an omitted dependency, and links outside the folder are findings even if they work locally. Use `--json` for a structured report. Keep build output stable while checking it.
 
-A missing dependency diagnostic names the importing module and specifier. Missing literal assets carry a path chain back to the entry. Source contents, application output, host environment values, and external target paths are excluded from reports. Keep the artifact stable during inspection: this is a diagnostic tool for trusted local build output, not an adversarial filesystem sandbox.
+For CI, commit the dev dependency and lockfile, then run the check after your normal build. A missing file, incomplete analysis or tool failure remains nonzero. See the [copyable CI recipe](docs/ci.md).
 
-## Optional container smoke
+## What the alpha covers
 
-The explicit smoke command is a separate observation. It runs only in a disposable container, with no network, source/socket mounts, host environment forwarding, or published ports. A never-started staging container receives the artifact; its snapshot becomes a separate read-only worker. The worker is non-root with dropped capabilities and CPU/memory/PID limits. Only a local base image is used, resolved to an immutable ID; images are never pulled automatically. Both containers and the snapshot image are removed after verifying their exact run labels.
+- Built `.js`, `.mjs` and `.cjs` entries, traced with [Node File Trace](https://github.com/vercel/nft).
+- Missing dependencies, external/broken symlinks and supported literal filesystem reads.
+- An optional, separate smoke command in a constrained disposable container. [OrbStack instructions and full reference](docs/reference.md).
 
-```sh
-# Prepare the selected image yourself before running the gate.
-docker pull node:22-alpine
-deployproof check ./out --entry dist/server.js --smoke-image node:22-alpine -- node dist/server.js --check
-npm run test:integration
-```
+Dynamic imports and unsupported filesystem expressions produce partial coverage. A structural pass covers supported static patterns; it does not prove every runtime path, native ABI or external integration. This is a diagnostic tool for trusted local build output, not an adversarial filesystem sandbox.
 
-OrbStack is the verified local engine on macOS arm64. Set `CONTAINER_CLI=/absolute/path/to/docker` to a Docker-compatible client and `CONTAINER_HOST="unix://${HOME}/.orbstack/run/docker.sock"` before running Deployproof. The endpoint affects only the supervisor's client subprocess and overrides its `DOCKER_CONTEXT`; application containers receive neither setting. For manual preparation with those exports, use `env -u DOCKER_CONTEXT DOCKER_HOST="$CONTAINER_HOST" "$CONTAINER_CLI" pull node:22-alpine`. Without overrides, normal `docker` client/context selection remains available.
-
-Supply a command that terminates: for a long-running server, implement an application-owned startup check. A zero exit with a consistent stopped/non-OOM state proves only that command exited zero in the copied artifact, not that every route or integration works. Container stdout/stderr is not collected. Timeout, unavailable engine/image, invalid observation, or failed ownership-verified cleanup cannot pass. No global cleanup is performed. Default command timeout is 15 seconds; API bounds allow 100–120000 ms. Reports retain both `imageId` (base) and `artifactImageId` (snapshot).
-
-## API and result
-
-```js
-import { checkArtifact, smokeArtifact, exitCode } from '@developer-pain-lab/deployproof';
-const report = await checkArtifact('./out', { entry: 'dist/server.js' });
-// Optional, explicitly requested:
-// report.smoke = await smokeArtifact('./out', { image: 'node:22-alpine', command: ['node', 'dist/server.js', '--check'] });
-process.exitCode = exitCode(report);
-```
-
-Result fields remain independent: `execution`, `structural`, `coverage`, `smoke.status`, and (when smoke ran) `smoke.cleanup`. `passed` is not a deployment-readiness claim. Exit codes:
-
-| Exit | Meaning |
+| Check exit | Meaning |
 | --- | --- |
-| 0 | Supported structural checks passed; any requested smoke command also passed and cleaned up |
-| 1 | Structural finding or nonzero smoke command |
-| 2 | Invalid input, tool failure, blocked smoke prerequisite, or failed cleanup |
-| 3 | Incomplete supported-static analysis without a stronger failure |
+| 0 | Supported structural checks passed; any requested smoke also passed and cleaned up |
+| 1 | Structural finding or failing smoke command |
+| 2 | Invalid input, tool/prerequisite failure or failed cleanup |
+| 3 | Incomplete analysis without a stronger failure |
 
-Defaults cap the scan at 10000 filesystem entries, individual reads at 2 MiB, total source reads at 32 MiB, and filesystem operations at 100000. Exceeding a ceiling is incomplete. Dynamic import/require and filesystem paths outside the supported literal forms are partial. The literal supplement understands imported `fs` read functions, `fs`/`fs.promises` namespace reads, direct CommonJS `fs` destructuring, relative string paths against artifact cwd, and `new URL('./file', import.meta.url)`. It does not prove all filesystem behavior, native ABI compatibility, network integrations, or every Node export condition. Conditional/optional imports may be conservatively flagged if their files are absent. Node File Trace warnings remain partial, including unresolved traces. Only built `.js`, `.mjs`, or `.cjs` entries are accepted.
+The scoped package is **not published to npm**. GitHub [alpha releases](https://github.com/CVamsi27/deployproof/releases) contain tarballs and checksums. The JavaScript API is ESM; TypeScript declarations and CommonJS support are not supplied. Recorded checks use Node 24.22.1 on Ubuntu 24.04 and macOS arm64; the real smoke profile uses OrbStack. See [verification](docs/verification.md) for the precise limits.
 
-## Comparison and promotion gate
+## Help decide whether this is useful
 
-`npm run measure` generates the six fixtures in a temporary folder and emits JSON with observed diagnostics and single-run wall times for Deployproof, direct NFT, and a separately handwritten restricted container baseline. NFT is a trace, not itself a portability verdict. The baseline can read only the explicitly generated synthetic fixtures. Unavailable engine/image is recorded as **blocked**, not a pass or a timing estimate; baseline disagreement with a fixture's expected result fails the gate. All six static, smoke and handwritten-baseline outcomes matched their expectations in the recorded OrbStack run. Single-run timings do not establish productivity or setup-time savings.
+This is a public alpha. Independent integrations and retained use are still unvalidated. The synthetic examples demonstrate detection, not time saved.
 
-Related tools: [Node File Trace](https://github.com/vercel/nft) supplies the tracing core; [package-consumer-check](https://github.com/cagrikacmaz/package-consumer-check) tests npm packages installed into fresh consumers. Deployproof's candidate distinction is explaining the portability of an already-produced application directory. [pnpm #13754](https://github.com/pnpm/pnpm/issues/13754) and [Next.js #82626](https://github.com/vercel/next.js/issues/82626) document related failure classes, including fixed regressions; no current upstream defect is alleged.
+Try it on one local deployment folder and [share a trial report](https://github.com/CVamsi27/deployproof/issues/new?template=integration-trial.yml). A confusing diagnostic, unnecessary finding or reason for removal is useful feedback. The [pilot guide](docs/pilot.md) explains what to measure. If it is useful, a GitHub star helps people find it; a report from an actual integration helps us improve it.
 
-Continue only if independent users obtain earlier detection or clearer diagnosis with less setup than their existing tracing/container checks. Until five outside developers trial it, three integrate it, and two retain it for a later change, adoption remains **unvalidated**. Do not infer demand from synthetic successes.
-
-## Standalone project
-
-This folder owns its source, tests, examples, npm lockfile and development scripts. Run every command here. [Verification](docs/verification.md) records independent-source and OrbStack gates; [validation plan](docs/validation-plan.md) records the remaining adoption targets. No runtime or test import depends on the lab or another project.
-
-## Verified alpha profiles
-
-| Profile | Verified scope |
-| --- | --- |
-| Ubuntu 24.04, Node 24.22.1, hosted GitHub CI | Source checks and independent packed consumers |
-| macOS arm64, Node 24.22.1, OrbStack | Local declared container/browser integration described in verification |
-
-This hosted job does not run a Linux container engine. Real container compatibility remains the local macOS arm64 OrbStack profile. See [public alpha readiness](docs/public-alpha.md) for immutable CI evidence, distribution and remaining gates. Other runtime/OS/engine combinations remain unverified.
+For the API, constraints, fixture comparisons and optional smoke execution, read the [reference](docs/reference.md). For source setup and checks, read [contributing](CONTRIBUTING.md). [Security reporting](SECURITY.md) · [Changelog](CHANGELOG.md) · [Validation targets](docs/validation-plan.md).

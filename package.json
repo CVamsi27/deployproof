@@ -1,6 +1,6 @@
 {
   "name": "@developer-pain-lab/deployproof",
-  "version": "0.1.0-alpha.0",
+  "version": "0.1.0-alpha.1",
   "description": "Check a Node deployment folder for dependencies outside the shipped artifact",
   "type": "module",
   "license": "MIT",

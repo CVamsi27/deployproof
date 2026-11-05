@@ -1,5 +1,22 @@
 # Deployproof verification
 
+## First-use alpha.1 — 5 November 2026
+
+The new `demo` command runs the actual structural checker on a private synthetic artifact before and after adding its missing asset. Its tests verify the path chain, both exits, complete supported-static coverage, no smoke execution and removal of the private directory. The real CLI also succeeds with child-process APIs disabled. An injected cleanup failure retains the observations and returns incomplete/nonzero. Strict invalid arguments and help create no fixture.
+
+| Gate | Observed result |
+| --- | --- |
+| `npm run check` | 26 behavior tests, zero failures or skips; 19 JavaScript files syntax checked |
+| `npm run pack:check` | Fresh independent install, API import, installed help and broken/fixed demo passed |
+| `npm run test:integration` | All six real broken/fixed smoke cases passed on macOS arm64 OrbStack |
+| Fresh unrelated source copy | Frozen clean install, all 26 tests and packed consumer passed without sibling source/dependencies |
+| `npm exec --package=<local-tarball> -- deployproof demo` | Passed from an unrelated empty folder with isolated npm cache/config |
+| README transcript | Exact match against actual installed demo output |
+| Copyable application CI recipe | Actionlint passed; no application integration or deployment claimed |
+| Public issue form | YAML parsed; no participant or submission invented |
+
+The pinned public release URL is verified again after publication; that asset's download/checksum/install evidence belongs to the [alpha.1 release notes](https://github.com/CVamsi27/deployproof/releases/tag/v0.1.0-alpha.1). Hosted CI for the release commit is a separate gate linked there. The remote manual OrbStack workflow remains unexecuted. npm registry publication remains blocked by missing local authentication and unverified scope access; see [distribution](distribution.md). No outreach was sent. Independent participation remains zero.
+
 ## Independent folder split — 5 November 2026
 
 The implementation moved from the lab's workspace into its own sibling project folder. It has its own package manifest, frozen npm lockfile, source, tests, examples, license, operating rules and development scripts. Package identity and public APIs are unchanged. No project imports another project or the lab at runtime.

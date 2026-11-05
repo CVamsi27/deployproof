@@ -38,8 +38,13 @@ try {
         const binary = join(consumer, 'node_modules', '.bin', project);
         if (process.platform === 'win32') run(process.execPath, [binary, '--help'], consumer, 10_000);
         else run(binary, ['--help'], consumer, 10_000);
+        const demo = JSON.parse(run(process.execPath, [join(consumer, 'node_modules', manifest.name, 'src/cli.js'), 'demo', '--json'], consumer, 10_000));
+        if (!demo.passed || demo.cleanup !== 'completed' || demo.steps.length !== 2
+          || demo.steps[0].observedExit !== 1 || demo.steps[1].observedExit !== 0
+          || !demo.steps[0].report.diagnostics.some(item => item.code === 'missing_asset' && item.path === 'message.txt')
+          || demo.steps.some(step => step.report.smoke.status !== 'not_run')) throw new Error('Installed demo did not verify its broken/fixed controls');
       }
-      checks.push({ project, status: 'passed', files: files.length, compressedBytes: packed.size, exports, checks: ['packed allowlist', 'independent clean npm install', 'public API import', ...(manifest.bin ? ['installed CLI --help'] : [])] });
+      checks.push({ project, status: 'passed', files: files.length, compressedBytes: packed.size, exports, checks: ['packed allowlist', 'independent clean npm install', 'public API import', ...(manifest.bin ? ['installed CLI --help', 'installed synthetic broken/fixed demo'] : [])] });
     } catch (error) {
       checks.push({ project, status: 'failed', reason: error.message });
     }
