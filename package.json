@@ -1,0 +1,43 @@
+{
+  "name": "@developer-pain-lab/deployproof",
+  "version": "0.1.0-alpha.0",
+  "description": "Check a Node deployment folder for dependencies outside the shipped artifact",
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22"
+  },
+  "bin": {
+    "deployproof": "src/cli.js"
+  },
+  "exports": "./src/index.js",
+  "files": [
+    "src",
+    "examples",
+    "docs",
+    "README.md",
+    "LICENSE",
+    "CONTRIBUTING.md",
+    "SECURITY.md",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "test": "node --test tests/*.test.js",
+    "test:integration": "node tests/integration.js",
+    "measure": "node examples/measure.js",
+    "check": "node scripts/check.js",
+    "pack:check": "node scripts/verify-package.js"
+  },
+  "dependencies": {
+    "@vercel/nft": "1.11.0",
+    "acorn": "8.19.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CVamsi27/deployproof.git"
+  },
+  "homepage": "https://github.com/CVamsi27/deployproof#readme",
+  "bugs": {
+    "url": "https://github.com/CVamsi27/deployproof/issues"
+  }
+}
