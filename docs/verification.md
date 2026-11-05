@@ -13,6 +13,7 @@ The new `demo` command runs the actual structural checker on a private synthetic
 | `npm exec --package=<local-tarball> -- deployproof demo` | Passed from an unrelated empty folder with isolated npm cache/config |
 | README transcript | Exact match against actual installed demo output |
 | Copyable application CI recipe | Actionlint passed; no application integration or deployment claimed |
+| `npm run measure` | All six structural and handwritten OrbStack baseline outcomes matched; all baseline cleanup completed; raw NFT warnings recorded separately |
 | Public issue form | YAML parsed; no participant or submission invented |
 
 The pinned public release URL is verified again after publication; that asset's download/checksum/install evidence belongs to the [alpha.1 release notes](https://github.com/CVamsi27/deployproof/releases/tag/v0.1.0-alpha.1). Hosted CI for the release commit is a separate gate linked there. The remote manual OrbStack workflow remains unexecuted. npm registry publication remains blocked by missing local authentication and unverified scope access; see [distribution](distribution.md). No outreach was sent. Independent participation remains zero.

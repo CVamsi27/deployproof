@@ -10,15 +10,9 @@ If you already produce a standalone or pnpm deployment folder and want to try a 
 
 I am looking for feedback on one real integration: setup effort, whether the diagnostic changes anything, and how it compares with your current check. A blocked result or reason not to use it is useful. No source upload or credentials are needed. Participation and feedback are optional.
 
-## Technical case study outline
+## Technical case study
 
-Title: A successful Node build can still omit a runtime file
-
-Use the bundled synthetic entry that calls `readFileSync(new URL('./message.txt', import.meta.url))`. The entry exists, but the artifact omits `message.txt`. Show the actual `missing_asset` finding and `server.js -> message.txt` chain from `deployproof demo`, then the repaired result after adding the file.
-
-Explain how parent dependencies and workspace links can mask missing content. Credit Node File Trace as the tracing core. Compare against a direct trace and a handwritten smoke command with `npm run measure`; publish only observed outputs with the environment and blocked cases. One synthetic run cannot establish faster developer setup or broad reliability.
-
-End with the limits: dynamic expressions remain partial; structural checks cannot prove external services, native ABI or every runtime route. Invite a minimal synthetic counterexample or opt-in integration report. Link the pinned release and verification evidence.
+[A successful Node build can still omit a runtime file](case-study.md) contains the copy-ready draft, actual synthetic output and the six-case comparison. It remains a draft; no article or message has been submitted.
 
 ## Short launch post
 
