@@ -21,7 +21,7 @@ The example target must be new. Container-backed commands below require OrbStack
 
 To use a tarball in another project, download this project's `.tgz` from its release and run `npm install --save-dev /absolute/path/to/the-downloaded.tgz`. The installed tarball exposes the `deployproof` binary and the same public API.
 
-See [contributing](CONTRIBUTING.md), [security reporting](SECURITY.md), [changes](CHANGELOG.md) and [verification](docs/verification.md). Platform and adoption claims remain limited to recorded observations. These are ESM packages; the verified type-consumer profile is ESM/NodeNext. CommonJS compatibility is not promised; use dynamic import where needed.
+See [contributing](CONTRIBUTING.md), [security reporting](SECURITY.md), [changes](CHANGELOG.md) and [verification](docs/verification.md). Platform and adoption claims remain limited to recorded observations. The JavaScript API is ESM. This alpha supplies no TypeScript declarations for this package; CommonJS compatibility is not promised.
 
 Check whether a built Node application folder still depends on its original repository. Early prototype: synthetic failure detection is implemented; developer adoption and setup-time advantage remain unvalidated.
 
@@ -104,3 +104,12 @@ Continue only if independent users obtain earlier detection or clearer diagnosis
 ## Standalone project
 
 This folder owns its source, tests, examples, npm lockfile and development scripts. Run every command here. [Verification](docs/verification.md) records independent-source and OrbStack gates; [validation plan](docs/validation-plan.md) records the remaining adoption targets. No runtime or test import depends on the lab or another project.
+
+## Verified alpha profiles
+
+| Profile | Verified scope |
+| --- | --- |
+| Ubuntu 24.04, Node 24.22.1, hosted GitHub CI | Source checks and independent packed consumers |
+| macOS arm64, Node 24.22.1, OrbStack | Local declared container/browser integration described in verification |
+
+This hosted job does not run a Linux container engine. Real container compatibility remains the local macOS arm64 OrbStack profile. See [public alpha readiness](docs/public-alpha.md) for immutable CI evidence, distribution and remaining gates. Other runtime/OS/engine combinations remain unverified.
