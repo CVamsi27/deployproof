@@ -1,6 +1,6 @@
 {
   "name": "@developer-pain-lab/deployproof",
-  "version": "0.1.0-alpha.1",
+  "version": "0.1.0-alpha.2",
   "description": "Check a Node deployment folder for dependencies outside the shipped artifact",
   "type": "module",
   "license": "MIT",
@@ -24,9 +24,12 @@
   "scripts": {
     "test": "node --test tests/*.test.js",
     "test:integration": "node tests/integration.js",
+    "test:pnpm": "node --test tests/pnpm.integration.js",
+    "test:pnpm:smoke": "node --test tests/pnpm-smoke.integration.js",
     "measure": "node examples/measure.js",
     "check": "node scripts/check.js",
-    "pack:check": "node scripts/verify-package.js"
+    "pack:check": "node scripts/verify-package.js",
+    "pack:check:pnpm": "node scripts/verify-package.js --pnpm"
   },
   "dependencies": {
     "@vercel/nft": "1.11.0",

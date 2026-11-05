@@ -1,5 +1,7 @@
 # Distribution and registry prerequisites
 
+The owner chose to keep GitHub-package installation on 5 November 2026. GitHub packages are the supported public path; npm registry publication is deferred. No npm login is needed to use the tool.
+
 The pinned GitHub alpha tarball is the current public installation path. The README's `npm exec --package=<release-url> -- deployproof demo` command uses npm's cache; it does not require a clone or an npm account. Release assets include `SHA256SUMS.txt` for independent verification. Avoid mutable `latest` URLs in CI.
 
 The working package identity is `@developer-pain-lab/deployproof`. It is not published to npm, and ownership of that scope has not been verified. On 5 November 2026 the local `npm whoami --registry https://registry.npmjs.org/` preflight returned `ENEEDAUTH`. No registry publish was attempted.

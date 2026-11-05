@@ -1,5 +1,7 @@
 # Public alpha readiness
 
+The [alpha.2 release](https://github.com/CVamsi27/deployproof/releases/tag/v0.1.0-alpha.2) adds a real pnpm 11.23.0 deployment example and its structural/packaged CI gates. [Verification](verification.md#pnpm-workspace-alpha2--5-november-2026) records 30 behavior tests, four generated-artifact controls, real OrbStack smoke and failed-prerequisite/cleanup controls. Release notes record exact-head CI and public asset checks. GitHub release packages remain the owner's chosen installation path; npm publishing is deferred.
+
 The [alpha.1 release](https://github.com/CVamsi27/deployproof/releases/tag/v0.1.0-alpha.1) adds the synthetic first-use demo and pilot kit. [Local verification](verification.md#first-use-alpha1--5-november-2026) records 26 behavior tests, a fresh source/installed consumer and six real OrbStack smoke cases. The release notes link its exact hosted CI revision and public-asset verification. The previous counts below describe the initial alpha, not an additional run of other projects for this change.
 
 The initial source revision `8b5c85396b7484e97f34a1456dad7f3f93e6c8a0` passed [hosted CI](https://github.com/CVamsi27/deployproof/actions/runs/42038641977) on Ubuntu 24.04 with Node 24.22.1. Source checks and independent package consumers passed. This hosted job does not run a Linux container engine. Real container compatibility remains the local macOS arm64 OrbStack profile.

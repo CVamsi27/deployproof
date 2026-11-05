@@ -32,6 +32,8 @@ The dependency remains a pinned GitHub tarball until npm registry publication is
 
 ## This repository's gates
 
+Hosted CI explicitly provisions pnpm 11.23.0 for `test:pnpm` and `pack:check:pnpm`. Both prepare only the example's private offline workspace with ignored lifecycle scripts. The first checks actual generated deploy artifacts and the cleanup-failure control; the second runs the shipped example from an independent installed consumer. No application entry or container smoke runs in these hosted steps. The manual OrbStack workflow additionally requests `test:pnpm:smoke` with the local `node:24-bookworm-slim` image prepared beforehand.
+
 Hosted CI runs source/package checks on Ubuntu 24.04 with Node 24.22.1. A green unit/package job does not establish container-profile compatibility. Local container evidence uses OrbStack on macOS arm64.
 
 The manual OrbStack workflow requires a dedicated runner labelled `self-hosted`, `macOS`, `ARM64`, `orbstack`, a working compatible client/endpoint, and the explicit base/fixture images in the README. It accepts only owner-triggered workflow dispatch and never runs automatically for public pull requests. No runner is provisioned or registered by this repository. Without one, the remote manual gate is unexecuted; local real-container tests are separate evidence.

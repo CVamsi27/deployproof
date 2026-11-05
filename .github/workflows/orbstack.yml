@@ -22,4 +22,5 @@ jobs:
       - run: npm ci --ignore-scripts --no-audit --no-fund
       - run: npm run check
       - run: npm run test:integration
-      - run: npm run pack:check
+      - run: npm exec --yes --package=pnpm@11.23.0 -- npm run test:pnpm:smoke
+      - run: npm exec --yes --package=pnpm@11.23.0 -- npm run pack:check:pnpm

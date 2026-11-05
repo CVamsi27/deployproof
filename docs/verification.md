@@ -1,5 +1,23 @@
 # Deployproof verification
 
+## pnpm workspace alpha.2 — 5 November 2026
+
+The new shipped example runs actual pnpm 11.23.0 install/deploy commands on a synthetic local workspace. A contained deploy exits 0; an ordinary directory copy and deploys with omitted library asset/module files each exit 1 with their expected findings. Healthy coverage is complete for supported static patterns. No application entry executes on the host. Framework commands are offline with lifecycle scripts disabled and private config, store and temporary paths.
+
+| Gate | Observed result |
+| --- | --- |
+| `npm run check` | 30 behavior tests, zero failures/skips; 24 JavaScript files syntax checked |
+| `test:pnpm` | Two tests passed: four real generated artifact controls and a cleanup-failure control |
+| `test:pnpm:smoke` | Four actual OrbStack cells matched healthy/broken outcomes; a missing-image control remained blocked/nonzero |
+| Original real smoke integration | All six broken/fixed cases passed on OrbStack |
+| `pack:check:pnpm` | Fresh independent consumer passed API/CLI/demo plus the shipped real pnpm example |
+| Fresh unrelated source copy | Frozen install, all 30 tests and an independent packed pnpm consumer passed without sibling code/dependencies |
+| Negative prerequisite/argument controls | Missing/wrong pnpm, invalid/empty smoke flags and symlink invocation remained nonzero as required |
+
+The first cleanup test exposed pnpm's Node compile cache outside the private root. Child temporary paths now stay inside the owned cell. A packed-consumer check also exposed a macOS symlink path that skipped direct execution; a real symlink regression and canonical entry comparison fixed it. Neither issue was accepted as a passing integration.
+
+Hosted CI now runs the real structural and installed pnpm example with an explicitly provisioned pinned tool. Exact-head hosted CI and anonymous release asset verification are linked from the [alpha.2 release notes](https://github.com/CVamsi27/deployproof/releases/tag/v0.1.0-alpha.2). The local real profile is macOS arm64/Node 24.22.1/OrbStack; hosted structural checks use Ubuntu 24.04/Node 24.22.1. The remote manual OrbStack workflow remains unexecuted. Other pnpm versions and application/framework integrations remain unverified. GitHub packages are the owner's selected distribution path; npm publishing is deferred. Independent trials remain unvalidated.
+
 ## First-use alpha.1 — 5 November 2026
 
 The new `demo` command runs the actual structural checker on a private synthetic artifact before and after adding its missing asset. Its tests verify the path chain, both exits, complete supported-static coverage, no smoke execution and removal of the private directory. The real CLI also succeeds with child-process APIs disabled. An injected cleanup failure retains the observations and returns incomplete/nonzero. Strict invalid arguments and help create no fixture.

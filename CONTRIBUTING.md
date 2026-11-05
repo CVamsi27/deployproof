@@ -17,4 +17,15 @@ For a bug, provide a minimal synthetic fixture, exact command, versions, expecte
 
 A pull request should explain the resulting behavior, why it is needed, validation and compatibility limits. Preserve cleanup ownership and evidence distinctions. No automatic external probing, production connectors or global cleanup.
 
+The [real pnpm example](examples/pnpm/README.md) has separate gates with an explicitly provisioned pnpm 11.23.0 executable:
+
+```sh
+npm exec --yes --package=pnpm@11.23.0 -- npm run test:pnpm
+npm exec --yes --package=pnpm@11.23.0 -- npm run pack:check:pnpm
+# Requires the selected OrbStack endpoint and local node:24-bookworm-slim image:
+npm exec --yes --package=pnpm@11.23.0 -- npm run test:pnpm:smoke
+```
+
+`test:pnpm` covers generated artifacts and a cleanup-failure control. `test:pnpm:smoke` covers all four real cells and a missing-image control. Standard `npm run check` needs no pnpm executable; its negative prerequisite/argument tests do not run an application.
+
 Use [issues](https://github.com/CVamsi27/deployproof/issues) for non-sensitive reports and [private security reporting](SECURITY.md) for sensitive findings. Actual integration and retained-use evidence is useful; stars and synthetic examples do not establish adoption.
