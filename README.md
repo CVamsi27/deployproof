@@ -11,7 +11,7 @@ Deployproof checks an already-built Node folder for missing files, broken worksp
 Requires Node 22+ and npm. This command installs the pinned GitHub alpha into npm's cache and runs a synthetic example. No account or container engine is needed.
 
 ```sh
-npm exec --yes --package=https://github.com/CVamsi27/deployproof/releases/download/v0.1.0-alpha.3/developer-pain-lab-deployproof-0.1.0-alpha.3.tgz -- deployproof demo
+npm exec --yes --ignore-scripts --package=https://github.com/CVamsi27/deployproof/releases/download/v0.1.0-alpha.3/developer-pain-lab-deployproof-0.1.0-alpha.3.tgz -- deployproof demo
 ```
 
 Actual output from the bundled example:
@@ -32,16 +32,15 @@ The command creates a private temporary folder, checks the broken artifact, adds
 
 ## Check your deployment folder
 
-Build the application with your existing tools, then install the pinned alpha in your project:
+Build the application with your usual tools. From the application directory, run one check using npm's cache. This leaves your manifest and lockfile alone.
 
 ```sh
-npm install --save-dev --ignore-scripts https://github.com/CVamsi27/deployproof/releases/download/v0.1.0-alpha.3/developer-pain-lab-deployproof-0.1.0-alpha.3.tgz
-npx --no-install deployproof check ./out --entry dist/server.js
+npm exec --yes --ignore-scripts --package=https://github.com/CVamsi27/deployproof/releases/download/v0.1.0-alpha.3/developer-pain-lab-deployproof-0.1.0-alpha.3.tgz -- deployproof check ./out --entry dist/server.js
 ```
 
 Select the **exact folder you intend to ship**. For pnpm this can be your existing `pnpm deploy` output. Deployproof does not build or install the application. Resolution is confined to that folder: parent `node_modules` cannot rescue an omitted dependency, and links outside the folder are findings even if they work locally. Use `--json` for a structured report. Keep build output stable while checking it.
 
-For CI, commit the dev dependency and lockfile, then run the check after your normal build. A missing file, incomplete analysis or tool failure remains nonzero. See the [copyable CI recipe](docs/ci.md).
+If the result helps, [keep the check in CI](docs/ci.md). Add the pinned dev dependency to the project that runs the build, commit its lockfile, and check the same output after each build. A missing file, incomplete analysis or tool failure remains nonzero.
 
 Using pnpm workspaces? The [real pnpm deployment example](examples/pnpm/README.md) runs pnpm 11.23.0 against four synthetic controls. It demonstrates an ordinary copy with escaping workspace links and deploy outputs with missing module/asset files, alongside a contained healthy deploy. Optional smoke uses OrbStack.
 

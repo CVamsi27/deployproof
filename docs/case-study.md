@@ -22,6 +22,8 @@ missing_asset: message.txt (from server.js)
 
 The demo then adds the synthetic file and checks again. The repaired artifact exits 0. Both observations remain available with `demo --json`, and the command removes only its own temporary folder. Failed cleanup or unexpected controls make the demo incomplete and nonzero. The [README](../README.md) contains the pinned one-command install/run path.
 
+The [pnpm workspace example](../examples/pnpm/README.md) reproduces the same failure with a real `pnpm deploy` command. Its synthetic library reads `templates/message.txt`. With `files: ["dist"]`, pnpm ships the library's JavaScript and omits the template. Deployproof exits 1 and identifies the missing file. With both paths included, the same check exits 0.
+
 ## Compare the result, not just the runtime
 
 Deployproof uses [Node File Trace](https://github.com/vercel/nft) for its tracing core. A trace supplies files and warnings; interpreting it as a portability check needs additional rules. Deployproof adds containment checks and a limited literal-asset analysis. This is a specific candidate distinction, not a claim to replace tracing or smoke tests.
@@ -45,4 +47,4 @@ The container baseline also caught all three broken cases by running their expli
 
 Runtime-computed imports and unsupported filesystem expressions can remain partial. A structural pass cannot prove native ABI compatibility, external integrations or every route. An optional smoke command is a separate observation in a constrained disposable cell. It requires explicit local image preparation; the default structural check needs no engine.
 
-If you already produce a Node deployment folder, try one local check after your normal build and compare it with your existing command. The most useful feedback is the setup effort, an actionable or unnecessary diagnostic, and whether you keep it on a later change. Share only a sanitized summary or synthetic reproduction through the [opt-in trial form](https://github.com/CVamsi27/deployproof/issues/new?template=integration-trial.yml). No source upload or credentials are needed.
+If you already produce a Node deployment folder, [try one local check](../README.md#check-your-deployment-folder) after your normal build and compare it with your existing command. The most useful feedback is the setup effort, an actionable or unnecessary diagnostic, and whether you keep it on a later change. Share a sanitized summary or synthetic reproduction through the [opt-in trial form](https://github.com/CVamsi27/deployproof/issues/new?template=integration-trial.yml).

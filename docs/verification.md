@@ -1,5 +1,11 @@
 # Deployproof verification
 
+## First check and CI adoption path — 6 November 2026
+
+An unrelated synthetic app ran the README commands against the public alpha.3 package with isolated npm configuration and cache. The demo passed and the one-off artifact check exited 1 for a missing runtime asset and 0 after repair. The application manifest, lockfile and existing artifact files stayed byte-identical during each check. The app had no local dependency install.
+
+The packed consumer now reinstalls with `npm ci --ignore-scripts` and invokes the same `npm exec --no` check as the CI recipe. The missing asset, repair and dynamic import controls exit 1, 0 and 3. An unrelated pnpm 11.23.0 consumer also added the public alpha.3 tarball, reinstalled from its frozen lockfile and checked a healthy synthetic folder. These checks verify the documented workflow on synthetic projects. Participant results belong in the [trial record](https://github.com/CVamsi27/developer-pain-lab/blob/HEAD/docs/adoption-trials.md).
+
 ## Alpha.3 diagnostic cap — 6 November 2026
 
 A synthetic report with more than 1,000 incomplete details retains the escaping-link finding and exits 1. Its incomplete-only control exits 3. The report stays bounded at 1,000 details and marks truncation. Source checks passed 31 tests. The installed demo and pnpm example, four generated artifact controls, and ten OrbStack smoke cases passed.

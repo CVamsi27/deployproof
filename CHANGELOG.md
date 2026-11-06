@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+Document a one-off check from the public alpha and a lockfile-based CI recipe. Verify the CI command against a missing asset, its repair and incomplete analysis from a fresh packed consumer.
+
 ## 0.1.0-alpha.3 — 2026-11-06
 
 Preserve observed findings when the diagnostic report reaches its 1,000-detail limit. The JSON report exposes `diagnosticsTruncated` and the human report notes truncation.
