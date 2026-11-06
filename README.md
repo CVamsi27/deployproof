@@ -30,6 +30,8 @@ Structural checks only; the synthetic application was not executed.
 
 The command creates a private temporary folder, checks the broken artifact, adds the missing file, checks again and removes its own folder. `demo --json` exposes both real reports. Demo exit 0 means those controls and cleanup succeeded; an incomplete demo exits 2. It is an example, not a scan of your project.
 
+[Case study: a successful build that omitted a runtime file](docs/case-study.md). Follow the pnpm reproduction, see how the checker finds the missing path, and run the same check after your own build.
+
 ## Check your deployment folder
 
 Build the application with your usual tools. From the application directory, run one check using npm's cache. This leaves your manifest and lockfile alone.

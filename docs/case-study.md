@@ -1,6 +1,6 @@
 # A successful Node build can still omit a runtime file
 
-Draft technical post. This example is synthetic; it does not describe a customer incident or prove developer adoption.
+This walkthrough uses Deployproof alpha.3 and synthetic Node deployment folders.
 
 A deployment folder can contain a valid JavaScript entry while omitting a file that entry reads. Consider this built module:
 
@@ -23,6 +23,29 @@ missing_asset: message.txt (from server.js)
 The demo then adds the synthetic file and checks again. The repaired artifact exits 0. Both observations remain available with `demo --json`, and the command removes only its own temporary folder. Failed cleanup or unexpected controls make the demo incomplete and nonzero. The [README](../README.md) contains the pinned one-command install/run path.
 
 The [pnpm workspace example](../examples/pnpm/README.md) reproduces the same failure with a real `pnpm deploy` command. Its synthetic library reads `templates/message.txt`. With `files: ["dist"]`, pnpm ships the library's JavaScript and omits the template. Deployproof exits 1 and identifies the missing file. With both paths included, the same check exits 0.
+
+## How it checks the folder
+
+1. Start from the entry inside the artifact and use Node File Trace to follow supported imports and requires.
+2. Check the paths and symlinks against the artifact boundary. A dependency in the parent workspace does not count as shipped.
+3. Check supported literal filesystem reads and report an omitted path with the chain that reaches it. Unsupported or unresolved patterns remain visible as incomplete coverage.
+
+## Try the demo, then check your own build
+
+With Node 22 or later and npm, run the pinned alpha from npm's cache.
+
+```sh
+release_url=https://github.com/CVamsi27/deployproof/releases/download/v0.1.0-alpha.3/developer-pain-lab-deployproof-0.1.0-alpha.3.tgz
+npm exec --yes --ignore-scripts --package="$release_url" -- deployproof demo
+```
+
+Next, build your application as usual. If it ships `./out` and starts from `out/dist/server.js`, use the same package to check that exact folder. The entry path is relative to the artifact root.
+
+```sh
+npm exec --yes --ignore-scripts --package="$release_url" -- deployproof check ./out --entry dist/server.js
+```
+
+For the synthetic pnpm failure, fix the library's file list, regenerate the deployment folder, and rerun the check. For your own build, fix the packaging step that dropped the file. Once the check is useful, [add it after the build in CI](ci.md). Exit 0 means supported structural checks passed. Exit 1 reports a finding, 2 a setup or tool error, and 3 incomplete coverage without a stronger failure.
 
 ## Compare the result, not just the runtime
 
