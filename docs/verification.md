@@ -1,5 +1,9 @@
 # Deployproof verification
 
+## Alpha.3 diagnostic cap — 6 November 2026
+
+A synthetic report with more than 1,000 incomplete details retains the escaping-link finding and exits 1. Its incomplete-only control exits 3. The report stays bounded at 1,000 details and marks truncation. Source checks passed 31 tests. The installed demo and pnpm example, four generated artifact controls, and ten OrbStack smoke cases passed.
+
 ## pnpm workspace alpha.2 — 5 November 2026
 
 The new shipped example runs actual pnpm 11.23.0 install/deploy commands on a synthetic local workspace. A contained deploy exits 0; an ordinary directory copy and deploys with omitted library asset/module files each exit 1 with their expected findings. Healthy coverage is complete for supported static patterns. No application entry executes on the host. Framework commands are offline with lifecycle scripts disabled and private config, store and temporary paths.

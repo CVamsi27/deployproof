@@ -5,6 +5,7 @@ import { parse } from 'acorn';
 import { readBounded } from './read.js';
 
 const LIMITS = { maxFiles: 10_000, maxFileBytes: 2 * 1024 * 1024, maxReadBytes: 32 * 1024 * 1024, maxOperations: 100_000 };
+const MAX_DIAGNOSTICS = 1000;
 const MISSING = new Set(['ENOENT', 'ENOTDIR']);
 const clean = value => String(value).replace(/[\x00-\x1f\x7f]/g, '').slice(0, 400);
 const missing = error => MISSING.has(error?.code);
@@ -22,7 +23,7 @@ function walk(node, visit) {
 /** Read-only analysis. It never imports, requires or starts the inspected application. */
 export async function checkArtifact(directory, options = {}) {
   const started = performance.now();
-  const report = { schemaVersion: 1, execution: 'completed', structural: 'not_evaluated', coverage: 'partial', diagnostics: [], filesTraced: 0, smoke: { status: 'not_run' }, durationMs: 0 };
+  const report = { schemaVersion: 1, execution: 'completed', structural: 'not_evaluated', coverage: 'partial', diagnostics: [], diagnosticsTruncated: false, filesTraced: 0, smoke: { status: 'not_run' }, durationMs: 0 };
   const finish = () => { for (const item of report.diagnostics) { for (const [key, value] of Object.entries(item)) { if (typeof value === 'string') item[key] = clean(value); else if (Array.isArray(value)) item[key] = value.map(clean); } } report.durationMs = Math.round((performance.now() - started) * 100) / 100; return report; };
   const entry = options.entry;
   const limits = { ...LIMITS, ...Object.fromEntries(Object.keys(LIMITS).filter(k => options[k] !== undefined).map(k => [k, options[k]])) };
@@ -34,12 +35,22 @@ export async function checkArtifact(directory, options = {}) {
   catch { report.execution = 'invalid_input'; report.diagnostics.push({ code: 'invalid_input', severity: 'error', message: 'Artifact directory is unavailable or is not a directory.' }); return finish(); }
   const display = p => clean(inside(root, p) ? relative(root, p).split(sep).join('/') || '.' : '<outside-artifact>');
   const unique = new Set();
-  let partial = false, operations = 0, readBytes = 0;
+  let hasFinding = false, partial = false, operations = 0, readBytes = 0;
   const files = [], contents = new Map();
   const add = (code, path, message, fields = {}, severity = 'finding') => {
     const item = { code, severity, path: display(path), message, ...fields };
-    const key = JSON.stringify(item); if (!unique.has(key) && report.diagnostics.length < 1000) { unique.add(key); report.diagnostics.push(item); }
+    const firstFinding = severity === 'finding' && !hasFinding;
+    hasFinding ||= severity === 'finding';
     if (severity === 'incomplete') partial = true;
+    const key = JSON.stringify(item);
+    if (unique.has(key)) return;
+    if (report.diagnostics.length === MAX_DIAGNOSTICS) {
+      report.diagnosticsTruncated = true;
+      if (!firstFinding) return;
+      unique.delete(JSON.stringify(report.diagnostics.pop()));
+    }
+    unique.add(key);
+    report.diagnostics.push(item);
   };
   const operation = () => { if (++operations > limits.maxOperations) throw new Error('operation_limit'); };
   // Resolve one component at a time: external links are rejected BEFORE the target is inspected.
@@ -159,11 +170,12 @@ export async function checkArtifact(directory, options = {}) {
         else if (!await safePath(path)) add('missing_asset', path, 'Literal runtime asset is absent from the deployment folder.', { importer: traced, chain: [...chainFor(traced), display(path)] });
       }
     }
-    report.structural = report.diagnostics.some(d => d.severity === 'finding') ? 'failed' : partial ? 'not_evaluated' : 'passed';
+    report.structural = hasFinding ? 'failed' : partial ? 'not_evaluated' : 'passed';
     report.coverage = partial ? 'partial' : 'complete_for_supported_static_patterns';
   } catch (error) {
-    if (error.message === 'operation_limit') { add('operation_limit', root, 'Filesystem operation limit reached.', {}, 'incomplete'); report.structural = report.diagnostics.some(d => d.severity === 'finding') ? 'failed' : 'not_evaluated'; }
-    else { report.execution = 'tool_error'; report.structural = 'not_evaluated'; add('tool_error', root, 'Analysis failed; no complete result is available.', {}, 'incomplete'); }
+    report.structural = hasFinding ? 'failed' : 'not_evaluated';
+    if (error.message === 'operation_limit') add('operation_limit', root, 'Filesystem operation limit reached.', {}, 'incomplete');
+    else { report.execution = 'tool_error'; add('tool_error', root, 'Analysis failed; no complete result is available.', {}, 'incomplete'); }
   }
   return finish();
 }

@@ -11,7 +11,7 @@ Deployproof checks an already-built Node folder for missing files, broken worksp
 Requires Node 22+ and npm. This command installs the pinned GitHub alpha into npm's cache and runs a synthetic example. No account or container engine is needed.
 
 ```sh
-npm exec --yes --package=https://github.com/CVamsi27/deployproof/releases/download/v0.1.0-alpha.2/developer-pain-lab-deployproof-0.1.0-alpha.2.tgz -- deployproof demo
+npm exec --yes --package=https://github.com/CVamsi27/deployproof/releases/download/v0.1.0-alpha.3/developer-pain-lab-deployproof-0.1.0-alpha.3.tgz -- deployproof demo
 ```
 
 Actual output from the bundled example:
@@ -35,7 +35,7 @@ The command creates a private temporary folder, checks the broken artifact, adds
 Build the application with your existing tools, then install the pinned alpha in your project:
 
 ```sh
-npm install --save-dev --ignore-scripts https://github.com/CVamsi27/deployproof/releases/download/v0.1.0-alpha.2/developer-pain-lab-deployproof-0.1.0-alpha.2.tgz
+npm install --save-dev --ignore-scripts https://github.com/CVamsi27/deployproof/releases/download/v0.1.0-alpha.3/developer-pain-lab-deployproof-0.1.0-alpha.3.tgz
 npx --no-install deployproof check ./out --entry dist/server.js
 ```
 

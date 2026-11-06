@@ -4,6 +4,8 @@ Goal: learn whether Deployproof gives a developer an earlier or clearer answer t
 
 ## Run one trial
 
+Install the [alpha.3 GitHub tarball](https://github.com/CVamsi27/deployproof/releases/tag/v0.1.0-alpha.3) using the README. Choose a repository with a forthcoming deployment change. Keep the check after the usual build and compare it with the existing check on the same artifact. Record cold downloads, hands-on setup and machine runtime separately. Record later use at 14, 30 and 90 days, with unobserved changes tracked separately.
+
 1. Give the participant the README and a pinned release. Let them start without a live walkthrough. Record assistance separately.
 2. Ask them to check one local, non-production deployment folder they understand. Record OS, Node/package version, entry, setup minutes and run minutes. Do not ask them to upload the artifact.
 3. Record whether the result is actionable, incomplete, incorrect or blocked. Ask what they changed, if anything. Compare the outcome and effort with their existing check; do not infer time saved from scanner duration.

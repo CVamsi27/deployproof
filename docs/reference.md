@@ -1,5 +1,7 @@
 # Deployproof reference
 
+JSON reports set `diagnosticsTruncated` when the 1,000-detail limit is exceeded. An observed finding remains represented and exits 1 even when analysis is partial. Tool and cleanup failures retain exit 2 precedence.
+
 Deployproof reads the artifact as data. It does not import or run the inspected application during structural checks. It combines [Node File Trace](https://github.com/vercel/nft) with contained filesystem resolution, symlink checks, and a small supplemental literal-asset analysis.
 
 ## Fixture set

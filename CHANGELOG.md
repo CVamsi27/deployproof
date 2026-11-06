@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.0-alpha.3 — 2026-11-06
+
+Preserve observed findings when the diagnostic report reaches its 1,000-detail limit. The JSON report exposes `diagnosticsTruncated` and the human report notes truncation.
+
 ## 0.1.0-alpha.2 — 2026-11-05
 
 Add a real pnpm 11.23.0 workspace example: inspect a contained deploy, an ordinary copy with external workspace links, and deploys with omitted module/asset files. Use offline, script-free preparation with private config/store/temp files. Preserve actual structural reports and optional separate constrained smoke evidence. Missing prerequisites, wrong controls or failed cleanup cannot pass.

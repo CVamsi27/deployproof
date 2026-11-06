@@ -40,6 +40,7 @@ try {
     else {
       process.stdout.write(`Structural: ${report.structural}\nCoverage: ${report.coverage}\nSmoke: ${report.smoke.status}\n`);
       printDiagnostics(report);
+      if (report.diagnosticsTruncated) process.stdout.write('Diagnostic details truncated at the report limit.\n');
       if (report.smoke.reason) process.stdout.write(`${report.smoke.reason}\n`);
       process.stdout.write('This result covers supported static patterns and the explicit smoke command only.\n');
     }

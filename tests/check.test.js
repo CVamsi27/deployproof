@@ -3,6 +3,8 @@ import assert from 'node:assert/strict';
 import { mkdtemp, mkdir, writeFile, symlink, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import fs from 'node:fs/promises';
+import { syncBuiltinESMExports } from 'node:module';
 
 const implementation = await import('../src/index.js').catch(() => null);
 const roots = [];
@@ -41,6 +43,36 @@ test('a workspace symlink escaping the artifact is a finding without reading its
   assert.equal(report.structural, 'failed');
   assert.ok(report.diagnostics.some(d => d.code === 'external_symlink' && d.path === 'node_modules/workspace-lib'));
   assert.ok(!JSON.stringify(report).includes('TOP_SECRET_SYNTHETIC_SENTINEL'));
+});
+
+test('a full incomplete detail list preserves the first finding and the exit status', async t => {
+  const { root, parent } = await fixture({ 'server.js': 'module.exports = 1;' });
+  const realRoot = await fs.realpath(root);
+  const readdir = fs.readdir;
+  const unsupported = Array.from({ length: 1001 }, (_, i) => ({
+    name: `special-${i}`,
+    isDirectory: () => false, isSymbolicLink: () => false, isFile: () => false,
+  }));
+  const mock = t.mock.method(fs, 'readdir', async (path, options) => {
+    const entries = await readdir(path, options);
+    return path === realRoot && options?.withFileTypes ? [...unsupported, ...entries] : entries;
+  });
+  syncBuiltinESMExports();
+  try {
+    const incomplete = await check(root);
+    assert.equal(implementation.exitCode(incomplete), 3);
+    assert.equal(incomplete.diagnosticsTruncated, true);
+    await symlink(join(parent, 'absent-external-file'), join(root, 'escape'));
+    const report = await check(root);
+    assert.equal(implementation.exitCode(report), 1);
+    assert.equal(report.coverage, 'partial');
+    assert.equal(report.diagnosticsTruncated, true);
+    assert.equal(report.diagnostics.length, 1000);
+    assert.ok(report.diagnostics.some(d => d.code === 'external_symlink' && d.path === 'escape'));
+  } finally {
+    mock.mock.restore();
+    syncBuiltinESMExports();
+  }
 });
 
 test('a dangling internal package link is reported, not silently ignored', async () => {
